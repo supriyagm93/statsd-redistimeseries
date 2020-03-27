@@ -1,7 +1,7 @@
 {
-  "name": "rts-backend",
+  "name": "statsd-redistimeseries",
   "version": "1.0.0",
-  "description": "Redis backend for statsD",
+  "description": "Redis Time Series backend for statsD",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
