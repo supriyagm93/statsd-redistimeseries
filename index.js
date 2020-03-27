@@ -15,6 +15,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     const gauges = metrics['gauges'];
     const timers = metrics['timers'];
     const timer_data = metrics['timer_data'];
+    const sets = metrics['sets'];
     
     const stats = [];
     // Counter stats
@@ -29,9 +30,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     }
     // Timer stats
     for(let timer in timer_data) {
-        // console.log(timer);
         for(let timer_stat in timer_data[timer]) {
-            // console.log(timer_data[timer][timer_stat]);
             let sample = new Sample(`${timer}.${timer_stat}`,
                             timer_data[timer][timer_stat] , 
                             timestamp);
@@ -39,6 +38,11 @@ const flush_stats = function rts_flush(timestamp, metrics) {
         }
     }
     // Sets stats
+    for(let set in sets) {
+        let count = Object.keys(sets[set].store).length;
+        let sample = new Sample(set, count, timestamp);
+        stats.push(sample);
+    }
 
     if(stats.length>0) {
         post_stats(stats, timestamp);
@@ -46,12 +50,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
 }
 
 const post_stats = async function rts_post_stats(stats, timestamp) {
-    // console.log('posting stats', stats);
-    // for(let stat of stats) {
-    //     samples.push(new Sample(stat.name, stat.count, timestamp));
-    // }
     const multiAdded  = await rtsDB.multiAdd(stats);
-
     // O(n)
     // ToDo: is PipeLine optimization needed?
     for(let i in multiAdded){
@@ -66,7 +65,6 @@ const post_stats = async function rts_post_stats(stats, timestamp) {
 const setup_rts = function rts_setup(redisHost, redisPort) {
     options['host'] = redisHost;
     options['port'] = redisPort;
-    console.log(options);
     const factory = new RedisTimeSeriesFactory(options);
     return factory.create();
 }
@@ -76,7 +74,6 @@ exports.init = function rts_init(startup_time, config, events, logger) {
     redisPort = config.redisPort || 6379;
     
     rtsDB = setup_rts(redisHost, redisPort);
-    console.log(rtsDB);
 
     events.on('flush', flush_stats)
     return true;
