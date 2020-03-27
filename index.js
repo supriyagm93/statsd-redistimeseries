@@ -10,19 +10,35 @@ let rtsDB = null;
 const KEY_NOT_PRESENT_ERROR = 'TSDB: the key is not a TSDB key';
 
 const flush_stats = function rts_flush(timestamp, metrics) {
-    const stats = [];
-    console.log("meow",metrics);
     const counters = metrics['counters'];
     const counterRates = metrics['counter_rates'];
+    const gauges = metrics['gauges'];
+    const timers = metrics['timers'];
+    const timer_data = metrics['timer_data'];
     
+    const stats = [];
+    // Counter stats
     for(let counter in counters) {
-        let metricObject = {};
-        metricObject['type'] = 'counter';
-        metricObject['name'] = counter;
-        metricObject['count'] = counters[counter];
-        metricObject['rate'] =  counterRates[counterRates] || 0;
-        stats.push(metricObject);
+        let sample = new Sample(counter, counters[counter], timestamp);
+        stats.push(sample);
     }
+    // Gauge stats
+    for(let gauge in gauges) {
+        let sample = new Sample(gauge, gauges[gauge], timestamp);
+        stats.push(sample);        
+    }
+    // Timer stats
+    for(let timer in timer_data) {
+        // console.log(timer);
+        for(let timer_stat in timer_data[timer]) {
+            // console.log(timer_data[timer][timer_stat]);
+            let sample = new Sample(`${timer}.${timer_stat}`,
+                            timer_data[timer][timer_stat] , 
+                            timestamp);
+            stats.push(sample);
+        }
+    }
+    // Sets stats
 
     if(stats.length>0) {
         post_stats(stats, timestamp);
@@ -30,22 +46,18 @@ const flush_stats = function rts_flush(timestamp, metrics) {
 }
 
 const post_stats = async function rts_post_stats(stats, timestamp) {
-    console.log('posting stats', stats);
-    // const created = await rtsDB.create('meow');
-    // console.log(created); 
-    let samples = [];
-
-    for(let stat of stats) {
-        samples.push(new Sample(stat.name, stat.count, timestamp));
-    }
-    const multiAdded  = await rtsDB.multiAdd(samples);
+    // console.log('posting stats', stats);
+    // for(let stat of stats) {
+    //     samples.push(new Sample(stat.name, stat.count, timestamp));
+    // }
+    const multiAdded  = await rtsDB.multiAdd(stats);
 
     // O(n)
     // ToDo: is PipeLine optimization needed?
     for(let i in multiAdded){
-        if(multiAdded[i].message != KEY_NOT_PRESENT_ERROR) {
+        if(multiAdded[i].message == KEY_NOT_PRESENT_ERROR) {
             let added = await rtsDB.add(
-                samples[i]
+                stats[i]
             );
         }
     }
