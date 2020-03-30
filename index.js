@@ -9,6 +9,7 @@ const options = {
 }
 let rtsDB = null;
 let rtsStats = {};
+let label = ''
 
 const KEY_NOT_PRESENT_ERROR = 'TSDB: the key is not a TSDB key';
 
@@ -30,12 +31,13 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     // Counter stats
     for(let counter in counters) {
         let sample = new Sample(counter, counters[counter], timestamp);
+        label = "counter";
         stats.push(sample);
     }
     // Gauge stats
     for(let gauge in gauges) {
         let sample = new Sample(gauge, gauges[gauge], timestamp);
-        
+        label = "gauge";
         stats.push(sample);        
     }
     // Timer stats
@@ -44,15 +46,15 @@ const flush_stats = function rts_flush(timestamp, metrics) {
             let sample = new Sample(`${timer}.${timer_stat}`,
                             timer_data[timer][timer_stat] , 
                             timestamp);
-           
-            stats.push(sample);
+         label = "timer";
+         stats.push(sample);
         }
     }
     // Sets stats
     for(let set in sets) {
         let count = Object.keys(sets[set].store).length;
         let sample = new Sample(set, count, timestamp);
-       
+        label = "set";
         stats.push(sample);
     }
 
@@ -71,7 +73,8 @@ const post_stats = async function rts_post_stats(stats, timestamp) {
     for(let i in multiAdded){
         if(multiAdded[i].message == KEY_NOT_PRESENT_ERROR) {
             let added = await rtsDB.add(
-                stats[i], [new Label(stats[i]['key'], 1)],retention
+                
+                stats[i], [new Label(label, 1)],retention
             );
             if(Number.isInteger(added)) {
                 rtsStats.last_exception = Math.round(Date.now()/1000);
