@@ -1,3 +1,5 @@
+const status = require("./status").status;
+
 const RedisTimeSeriesFactory = require('redis-time-series-ts').RedisTimeSeriesFactory;
 const Sample = require('redis-time-series-ts').Sample;
 
@@ -7,14 +9,9 @@ const options = {
 }
 let rtsDB = null;
 let rtsStats = {};
+exports.rtsStats = rtsStats;
 
 const KEY_NOT_PRESENT_ERROR = 'TSDB: the key is not a TSDB key';
-
-const status = function rts_status(write) {
-    for (let stat in rtsStats) {
-        write(null, 'rts', stat, rtsStats[stat]);
-    }
-}
 
 const flush_stats = function rts_flush(timestamp, metrics) {
     const counters = metrics['counters'];
@@ -99,5 +96,12 @@ exports.init = function rts_init(startup_time, config, events, logger) {
 
     events.on('flush', flush_stats);
     events.on('status', status);
+    // test passes if the below code is put
+    // events.on('status', exports.status);
     return true;
+}
+
+if(process.env.NODE_ENV == 'test') {
+    exports.flush_stats = flush_stats;
+    exports.status = status;
 }
