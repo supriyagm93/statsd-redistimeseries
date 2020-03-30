@@ -1,9 +1,11 @@
 const RedisTimeSeriesFactory = require('redis-time-series-ts').RedisTimeSeriesFactory;
 const Sample = require('redis-time-series-ts').Sample;
+const Label = require('redis-time-series-ts').Label;
 
 const options = {
     port: 6379,
-    host: 'localhost'
+    host: 'localhost',
+    retention:0
 }
 let rtsDB = null;
 let rtsStats = {};
@@ -23,8 +25,8 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     const timers = metrics['timers'];
     const timer_data = metrics['timer_data'];
     const sets = metrics['sets'];
-    
     const stats = [];
+    
     // Counter stats
     for(let counter in counters) {
         let sample = new Sample(counter, counters[counter], timestamp);
@@ -33,6 +35,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     // Gauge stats
     for(let gauge in gauges) {
         let sample = new Sample(gauge, gauges[gauge], timestamp);
+        
         stats.push(sample);        
     }
     // Timer stats
@@ -41,6 +44,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
             let sample = new Sample(`${timer}.${timer_stat}`,
                             timer_data[timer][timer_stat] , 
                             timestamp);
+           
             stats.push(sample);
         }
     }
@@ -48,6 +52,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     for(let set in sets) {
         let count = Object.keys(sets[set].store).length;
         let sample = new Sample(set, count, timestamp);
+       
         stats.push(sample);
     }
 
@@ -66,7 +71,7 @@ const post_stats = async function rts_post_stats(stats, timestamp) {
     for(let i in multiAdded){
         if(multiAdded[i].message == KEY_NOT_PRESENT_ERROR) {
             let added = await rtsDB.add(
-                stats[i]
+                stats[i], [new Label(stats[i]['key'], 1)],retention
             );
             if(Number.isInteger(added)) {
                 rtsStats.last_exception = Math.round(Date.now()/1000);
@@ -88,6 +93,7 @@ const setup_rts = function rts_setup(redisHost, redisPort) {
 exports.init = function rts_init(startup_time, config, events, logger) {
     redisHost = config.redisHost || 'localhost';
     redisPort = config.redisPort || 6379;
+    retention = config.retention || 0;
     
     rtsDB = setup_rts(redisHost, redisPort);
 
