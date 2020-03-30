@@ -6,8 +6,15 @@ const options = {
     host: 'localhost'
 }
 let rtsDB = null;
+let rtsStats = {};
 
 const KEY_NOT_PRESENT_ERROR = 'TSDB: the key is not a TSDB key';
+
+const status = function rts_status(write) {
+    for (let stat in rtsStats) {
+        write(null, 'rts', stat, rtsStats[stat]);
+    }
+}
 
 const flush_stats = function rts_flush(timestamp, metrics) {
     const counters = metrics['counters'];
@@ -50,16 +57,25 @@ const flush_stats = function rts_flush(timestamp, metrics) {
 }
 
 const post_stats = async function rts_post_stats(stats, timestamp) {
+
+    let startTime = Date.now();
+    // multiAdd pipelines multiple adds into a single command
     const multiAdded  = await rtsDB.multiAdd(stats);
-    // O(n)
-    // ToDo: is PipeLine optimization needed?
+    rtsStats.multi_flush_time = (Date.now() - startTime);
+    
     for(let i in multiAdded){
         if(multiAdded[i].message == KEY_NOT_PRESENT_ERROR) {
             let added = await rtsDB.add(
                 stats[i]
             );
+            if(Number.isInteger(added)) {
+                rtsStats.last_exception = Math.round(Date.now()/1000);
+            }
         }
     }
+    rtsStats.flush_time = (Date.now() - startTime);
+    rtsStats.flush_length = stats.length;
+    rtsStats.last_flush = Math.round(Date.now()/1000);
 }
 
 const setup_rts = function rts_setup(redisHost, redisPort) {
@@ -75,6 +91,13 @@ exports.init = function rts_init(startup_time, config, events, logger) {
     
     rtsDB = setup_rts(redisHost, redisPort);
 
-    events.on('flush', flush_stats)
+    rtsStats.last_flush = startup_time;
+    rtsStats.last_exception = startup_time;
+    rtsStats.multi_flush_time = 0;
+    rtsStats.flush_time = 0;
+    rtsStats.flush_length = 0;
+
+    events.on('flush', flush_stats);
+    events.on('status', status);
     return true;
 }
