@@ -11,9 +11,9 @@ A javascript backend for StatsD with RedisTimeSeries.
 Install this backend and configure statsd to use it
 ```
 {
- redisHost: 'localhost'
-,redisPort: 6379
-, port: 8125
-, backends: [ "../statsd-redistimeseries" ]
+ redisHost: 'localhost',
+ redisPort: 6379, 
+ port: 8125, 
+ backends: [ "../statsd-redistimeseries" ]
 }
 ```
