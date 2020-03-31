@@ -1,13 +1,8 @@
 const backend = require('../index');
-jest.spyOn(backend, 'status').mockImplementation(()=>{
-    console.log('running');
-})
+const statusLib = require('../status');
+const flushLib = require("../flush_stats");
 const eventsLib = require("events");
 const events = new eventsLib.EventEmitter();
-// const status = require('../status');
-// jest.spyOn(status, 'status').mockImplementation(()=>{
-//     console.log('hi');
-// })
 
 let config = {
     redisHost: 'localhost',
@@ -37,7 +32,7 @@ const flushMock = {
 };    
 
 describe("statsd-redistimeseries", () => {
-    // console.log(backend);
+
     describe("Backend Initialization", () => {
         test("it should initialize the backend", () => {
             let isInit = backend.init(Date.now(), config, events);
@@ -46,15 +41,20 @@ describe("statsd-redistimeseries", () => {
     });
 
     describe("Backend receives events", () => {
-        // const flush_stats = jest.spyOn(backend, 'flush_stats');    
-        // test("backend should call flush_stats on event flush", () => {
-        //     events.emit('flush', Date.now(), flushMock);
-        //     console.log(flush_stats);
-        //     expect(flush_stats).toHaveBeenCalled();
-        // });
+        const spyFlushStatsFn = jest.spyOn(flushLib, "flush_stats");    
+        test("backend should call flush_stats on event flush", () => {
+            spyFlushStatsFn.mockReturnValue('');
+            events.emit('flush', Date.now(), flushMock);
+            expect(spyFlushStatsFn).toHaveBeenCalled();
+            spyFlushStatsFn.mockRestore();
+        });
+
+        const spyStatusFn = jest.spyOn(statusLib, "status");
         test("backend should call status on event status", () => {
+            spyStatusFn.mockReturnValue('');
             events.emit('status');
-            expect(backend.status).toHaveBeenCalled()
+            expect(spyStatusFn).toHaveBeenCalled();
+            spyStatusFn.mockRestore();
         });
     });
 });

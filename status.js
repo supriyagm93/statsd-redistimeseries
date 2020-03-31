@@ -1,6 +1,5 @@
-const { rtsStats } = require("./index");
+const {rtsStats} = require('./client_handler');
 const status = function rts_status(write) {
-    console.log('status');
     for (let stat in rtsStats) {
         write(null, 'rts', stat, rtsStats[stat]);
     }
