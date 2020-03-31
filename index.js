@@ -5,11 +5,10 @@ const Label = require('redis-time-series-ts').Label;
 const options = {
     port: 6379,
     host: 'localhost',
-    retention:0
 }
 let rtsDB = null;
 let rtsStats = {};
-let label = ''
+
 
 const KEY_NOT_PRESENT_ERROR = 'TSDB: the key is not a TSDB key';
 
@@ -27,17 +26,21 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     const timer_data = metrics['timer_data'];
     const sets = metrics['sets'];
     const stats = [];
+    const label =[];
     
     // Counter stats
     for(let counter in counters) {
+       
         let sample = new Sample(counter, counters[counter], timestamp);
-        label = "counter";
+        let labelvalue = new Label("counter",1);
+        label.push(labelvalue)
         stats.push(sample);
     }
     // Gauge stats
     for(let gauge in gauges) {
         let sample = new Sample(gauge, gauges[gauge], timestamp);
-        label = "gauge";
+        let labelvalue = new Label("gauge",1);
+        label.push(labelvalue);
         stats.push(sample);        
     }
     // Timer stats
@@ -46,7 +49,8 @@ const flush_stats = function rts_flush(timestamp, metrics) {
             let sample = new Sample(`${timer}.${timer_stat}`,
                             timer_data[timer][timer_stat] , 
                             timestamp);
-         label = "timer";
+                            let labelvalue = new Label("timer",1);
+                            label.push(labelvalue);
          stats.push(sample);
         }
     }
@@ -54,16 +58,17 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     for(let set in sets) {
         let count = Object.keys(sets[set].store).length;
         let sample = new Sample(set, count, timestamp);
-        label = "set";
+        let labelvalue = new Label("set",1);
+        label.push(labelvalue);
         stats.push(sample);
     }
 
     if(stats.length>0) {
-        post_stats(stats, timestamp);
+        post_stats(stats, timestamp,label);
     }
 }
 
-const post_stats = async function rts_post_stats(stats, timestamp) {
+const post_stats = async function rts_post_stats(stats, timestamp,label) {
 
     let startTime = Date.now();
     // multiAdd pipelines multiple adds into a single command
@@ -74,7 +79,7 @@ const post_stats = async function rts_post_stats(stats, timestamp) {
         if(multiAdded[i].message == KEY_NOT_PRESENT_ERROR) {
             let added = await rtsDB.add(
                 
-                stats[i], [new Label(label, 1)],retention
+                stats[i], [label[i]],retention
             );
             if(Number.isInteger(added)) {
                 rtsStats.last_exception = Math.round(Date.now()/1000);
