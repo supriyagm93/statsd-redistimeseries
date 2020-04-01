@@ -34,6 +34,10 @@ const flushMock = {
 describe("statsd-redistimeseries", () => {
 
     describe("Backend Initialization", () => {
+        test("it should fail if config and event not passed", ()=> {
+            let isInit = backend.init(Date.now());
+            expect(isInit).toBe(false);
+        });
         test("it should initialize the backend", () => {
             let isInit = backend.init(Date.now(), config, events);
             expect(isInit).toBe(true);

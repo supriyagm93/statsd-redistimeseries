@@ -3,6 +3,9 @@ const status = require("./status");
 const client_handler = require('./client_handler');
 
 exports.init = function rts_init(startup_time, config, events, logger) {
+    if(!config || !events) {
+        return false;
+    }
     let redisHost = config.redisHost || 'localhost';
     let redisPort = config.redisPort || 6379;
     
