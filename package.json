@@ -1,13 +1,13 @@
 {
   "name": "statsd-redistimeseries",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Redis Time Series backend for statsD",
   "main": "index.js",
   "scripts": {
     "test": "jest --watch"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "samrudh, supriya, hashedin",
+  "license": "MIT",
   "dependencies": {
     "redis-time-series-ts": "^1.2.3"
   }
