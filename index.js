@@ -17,9 +17,6 @@ exports.init = function rts_init(startup_time, config, events, logger) {
     client_handler.rtsStats.flush_time = 0;
     client_handler.rtsStats.flush_length = 0;
 
-    let retention =  module.exports = {
-        retention : config.retention || 0
-    }
 
     events.on('flush', flush_stats.flush_stats);
     events.on('status', status.status);
