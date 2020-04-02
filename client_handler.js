@@ -3,6 +3,7 @@ let handler = module.exports = {
     rtsDB: null,
     pipeline: null,
     options: {},
+    retention: 0,
     rtsStats: {},
     setup_rts: function rts_setup (redisHost, redisPort) {
         this.options['host'] = redisHost;

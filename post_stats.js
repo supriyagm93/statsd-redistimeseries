@@ -2,7 +2,7 @@ const KEY_NOT_PRESENT_ERROR = 'TSDB: the key is not a TSDB key';
 const client_handler = require('./client_handler');
 const Label =  require('redis-time-series-ts').Label;
 
-const post_stats = async function rts_post_stats(stats, timestamp,label) {
+const post_stats = async function rts_post_stats(stats, timestamp,labels) {
     let startTime = Date.now();
     let multiAdded, pipelineResults;
     // multiAdd pipelines multiple adds into a single command
@@ -14,7 +14,7 @@ const post_stats = async function rts_post_stats(stats, timestamp,label) {
     for(let i in multiAdded) {
         if(multiAdded[i].message == KEY_NOT_PRESENT_ERROR) {
             
-            client_handler.add(stats[i],[retention],[stats[i]['key']+'.'+label[i]['name']]);
+            client_handler.add(stats[i],[client_handler.retention],[stats[i]['key']+'.'+labels[i]['name']]);
         }
     }
     // execute commands in pipeline and get results
