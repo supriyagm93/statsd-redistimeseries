@@ -11,7 +11,8 @@ let handler = module.exports = {
         this.rtsDB = factory.create();
         this.pipeline = this.rtsDB.provider.client.pipeline();
     },
-    add: function pipeline_add (stat) {
-        this.pipeline.call('TS.ADD', stat.key, stat.timestamp, stat.value);
+    
+    add: function pipeline_add (stat,retention,labels) {
+        this.pipeline.call('TS.ADD', stat.key, stat.timestamp, stat.value,'RETENTION',retention,'LABELS',labels ,1);
     }
 }
