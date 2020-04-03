@@ -14,6 +14,7 @@ let handler = module.exports = {
     },
     
     add: function pipeline_add (stat,retention,labels) {
-        this.pipeline.call('TS.ADD', stat.key, stat.timestamp, stat.value,'RETENTION',retention,'LABELS',labels ,1);
+        this.pipeline.call('TS.ADD', stat.key, stat.timestamp, stat.value,'RETENTION',
+        retention,'LABELS',stat.key,1,labels ,1);
     }
 }
