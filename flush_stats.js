@@ -1,6 +1,8 @@
 const Sample = require('redis-time-series-ts').Sample;
 const Label =  require('redis-time-series-ts').Label;
 const post_stats = require('./post_stats').post_stats;
+const client_handler = require('./client_handler');
+
 
 const flush_stats = function rts_flush(timestamp, metrics) {
     const counters = metrics['counters'];
@@ -14,14 +16,14 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     // Counter stats
     for (let counter in counters) {
         let sample = new Sample(counter, counters[counter], timestamp);
-        let labelvalue = new Label("counter");
+        let labelvalue = new Label(client_handler.prefixCounter);
         labels.push(labelvalue)
         stats.push(sample);
     }
     // Gauge stats
     for (let gauge in gauges) {
         let sample = new Sample(gauge, gauges[gauge], timestamp);
-        let labelvalue = new Label("gauge");
+        let labelvalue = new Label(client_handler.prefixGauge);
         labels.push(labelvalue);
         stats.push(sample);
     }
@@ -29,7 +31,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     for (let timer in timer_data) {
         for (let timer_stat in timer_data[timer]) {
             let sample = new Sample(`${timer}.${timer_stat}`, timer_data[timer][timer_stat], timestamp);
-            let labelvalue = new Label("timer");
+            let labelvalue = new Label(client_handler.prefixTimer);
             labels.push(labelvalue);
             stats.push(sample);
         }
@@ -38,7 +40,7 @@ const flush_stats = function rts_flush(timestamp, metrics) {
     for (let set in sets) {
         let count = Object.keys(sets[set].store).length;
         let sample = new Sample(set, count, timestamp);
-        let labelvalue = new Label("set");
+        let labelvalue = new Label(client_handler.prefixSet);
         labels.push(labelvalue);
         stats.push(sample);
     }

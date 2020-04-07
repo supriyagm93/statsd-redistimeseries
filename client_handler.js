@@ -4,10 +4,15 @@ let handler = module.exports = {
     pipeline: null,
     options: {},
     retention: 0,
+    prefixCounter:'',
+    prefixTimer:'',
+    prefixGauge:'',
+    prefixSet:'',
     rtsStats: {},
     setup_rts: function rts_setup (redisHost, redisPort) {
         this.options['host'] = redisHost;
         this.options['port'] = redisPort;
+     
         const factory = new RedisTimeSeriesFactory(this.options);
         this.rtsDB = factory.create();
         this.pipeline = this.rtsDB.provider.client.pipeline();
