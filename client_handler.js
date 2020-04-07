@@ -9,11 +9,11 @@ let handler = module.exports = {
     prefixGauge:'',
     prefixSet:'',
     rtsStats: {},
-    setup_rts: function rts_setup (redisHost, redisPort) {
+    setup_rts: function rts_setup (redisHost, redisPort,redisPassword) {
         this.options['host'] = redisHost;
         this.options['port'] = redisPort;
      
-        const factory = new RedisTimeSeriesFactory(this.options);
+        const factory = new RedisTimeSeriesFactory(this.options,{password :redisPassword });
         this.rtsDB = factory.create();
         this.pipeline = this.rtsDB.provider.client.pipeline();
     },
