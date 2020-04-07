@@ -8,9 +8,10 @@ exports.init = function rts_init(startup_time, config, events, logger) {
     }
     let redisHost = config.redisHost || 'localhost';
     let redisPort = config.redisPort || 6379;
+    let redisPassword = config.redisPassword || 'password';
     
-    client_handler.setup_rts(redisHost, redisPort);
-    client_handler.retention = config.retention;
+    client_handler.setup_rts(redisHost, redisPort,redisPassword);
+    client_handler.retention = config.retention || 5000;
     client_handler.rtsStats.last_flush = startup_time;
     client_handler.rtsStats.last_exception = startup_time;
     client_handler.rtsStats.multi_flush_time = 0;
