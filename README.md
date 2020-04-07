@@ -11,9 +11,10 @@ The StatsD-RedisTimeseries Backend for StatsD forwards metrics collected by the 
 
 # Install
 Install the StatsD-RedisTimeseries Backend with npm.
-
+```
 npm install statsd-redistimeseries
 
+```
 # Configuration
 Install this backend and configure statsd to use it
 ```
@@ -51,17 +52,17 @@ Install this backend and configure statsd to use it
 https://git.hashedin.com/samrudh.s/statsd-redistimeseries
 
 
-# Metrics Pattern
+# Metrics 
 
 The basic metrics data that the StatsD client sends contains three things: a metric name, its value, and a metric type. This data is formatted this way:
 
-* <metric_name>:<metric_value>|<metric_type> *
+``` <metric_name>:<metric_value>|<metric_type> ```
 
-1. Metric name (also called a bucket) is pretty self-explanatory. One key thing to remember is to  name your metric in a way that aims to avoid confusion or misinterpretation later. 
+ * Metric name (also called a bucket) is pretty self-explanatory. One key thing to remember is to  name your metric in a way that aims to avoid confusion or misinterpretation later. 
 
-2. Metric value is the number associated with that metric’s performance at collection time. The actual value will depend on the type of metric which you are collecting data for.
+ * Metric value is the number associated with that metric’s performance at collection time. The actual value will depend on the type of metric which you are collecting data for.
 
-3. Metric type defines what type of data the metric actually represents. StatsD supports several metric types, including counters, gauges, timers, and sets.
+* Metric type defines what type of data the metric actually represents. StatsD supports several metric types, including counters, gauges, timers, and sets.
 
- * Example: page.login.users:1|c *
+ ```Example: page.login.users:1|c ``` 
 
