@@ -26,7 +26,7 @@ Install this backend and configure statsd to use it
 ```
 # Supported Variables
 
-<table>
-<th>testing</th>
-<td>data</td>
-</table>
+| First Header  | Second Header |
+| ------------- | ------------- |
+| Content Cell  | Content Cell  |
+| Content Cell  | Content Cell  |
