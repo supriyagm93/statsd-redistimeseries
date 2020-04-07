@@ -26,7 +26,7 @@ Install this backend and configure statsd to use it
       prefixTimer:'timer',
       prefixGauge:'gauge',
       prefixSet:'set',
-      password:'password',
+      password:'',
       retention:500000
   
     }],
