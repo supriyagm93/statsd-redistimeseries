@@ -19,19 +19,15 @@ npm install statsd-redistimeseries
 Install this backend and configure statsd to use it
 ```
 {
-     host: 'localhost',
-     port: 6379,
-  redis: [{
-      prefixCounter:'counter',
-      prefixTimer:'timer',
-      prefixGauge:'gauge',
-      prefixSet:'set',
-      password:'',
-      retention:500000
-  
-    }],
-  
-    backends:[ "/../statsd-redistimeseries" ], 
+        redishost : 'localhost',
+        redisport : 6380,
+        authpassword:'password',
+        prefixCounter:'counter',
+        prefixTimer:'timer',
+        prefixGauge:'gauge',
+        prefixSet:'set',
+        retention:500000,
+        backends:[ "/../../statsd-redistimeseries" ], 
 }
 ```
 # Supported Variables

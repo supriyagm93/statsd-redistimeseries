@@ -12,8 +12,14 @@ let handler = module.exports = {
     setup_rts: function rts_setup (redisHost, redisPort,redisPassword) {
         this.options['host'] = redisHost;
         this.options['port'] = redisPort;
+        this.options['password'] = redisPassword;
+        this.options['tls'] = { 
+            requestCert: true,
+            rejectUnauthorized: false  
+            };
+    
      
-        const factory = new RedisTimeSeriesFactory(this.options,{password :redisPassword });
+        const factory = new RedisTimeSeriesFactory(this.options);
         this.rtsDB = factory.create();
         this.pipeline = this.rtsDB.provider.client.pipeline();
     },
