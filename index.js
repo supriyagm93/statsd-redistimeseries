@@ -6,8 +6,8 @@ exports.init = function rts_init(startup_time, config, events, logger) {
     if(!config || !events) {
         return false;
     }
-     let redisHost = config.redis.host || 'localhost';
-    let redisPort = config.redis.port || 6379;
+     let redisHost = config.host || 'localhost';
+    let redisPort = config.port || 6379;
     let redisPassword = config.redis.password || '';
 
     client_handler.setup_rts(redisHost, redisPort,redisPassword);
